@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:isolate';
 
+import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -60,11 +62,21 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _processChat() {
+  void _processChat() async {
     setState(() {
       _fileUploadStatus = "Processing your chat";
       _fabwidget = CircularProgressIndicator(color: Colors.white);
       _fileUploadIndicatorColor = Colors.orange;
+
+      if(uploadedFile == null) {
+        return;
+      }
+    });
+    MessageProcessor messageProcessor = MessageProcessor();
+    await messageProcessor.insertMessagesIntoDB(uploadedFile!);
+    setState(() {
+      _fileUploadStatus = "File loaded successfully";
+      setUploadState();
     });
   }
 
