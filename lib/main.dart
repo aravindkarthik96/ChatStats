@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 void main() {
   runApp(MyApp());
@@ -41,29 +43,75 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  File? _uploadedFile;
+  String _fileUploadStatus = "Upload your chat file";
+  String? _fileName;
+  List<PlatformFile>? _paths;
+  Color _fileUploadIndicatorColor = Colors.grey;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  Color _fabColor = Colors.blue;
+  Widget _fabwidget = Icon(Icons.upload_file);
 
-  void _uploadChat() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-    if(result != null) {
-      File file = File(result.files.single.path!);
+  void _fabPressed()  {
+    if(_fileName != null) {
+      _processChat();
     } else {
-      // User canceled the picker
+      _openFileExplorer();
     }
   }
 
-  void _decrementCounter() {
-    if(_counter == 0) { return; }
+  void _processChat() {
     setState(() {
-      _counter--;
+      _fileUploadStatus = "Processing your chat";
+      _fabwidget = CircularProgressIndicator(color: Colors.white);
+      _fileUploadIndicatorColor = Colors.orange;
     });
   }
+
+  void setUploadState() {
+    _fabColor = Colors.blue;
+    _fabwidget = Icon(Icons.upload_file);
+  }
+  void setProcessState() {
+    _fabColor = Colors.orange;
+    _fabwidget = Icon(Icons.play_arrow);
+  }
+
+  void _openFileExplorer() async {
+    print("opening");
+    _fileUploadStatus = "select a file";
+    try {
+      _paths = (await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowMultiple: false,
+        allowedExtensions: ["txt"],
+      ))?.files;
+    } on PlatformException catch (e) {
+      print("Unsupported operation" + e.toString());
+      setState(() {
+        _fileUploadIndicatorColor = Colors.red;
+        _fileUploadStatus = "File failed to loaded";
+        setUploadState();
+      });
+    } catch (ex) {
+      print(ex);
+      setState(() {
+        _fileUploadIndicatorColor = Colors.red;
+        _fileUploadStatus = "File failed to loaded";
+        setUploadState();
+      });
+    }
+    if (!mounted) return;
+    setState(() {
+      print(_paths!.first.extension);
+      _fileName =
+      _paths != null ? _paths!.map((e) => e.name).toString() : '...';
+      _fileUploadStatus = "File loaded";
+      _fileUploadIndicatorColor = Colors.blue;
+      setProcessState();
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -78,34 +126,27 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
+            Icon(Icons.chat_bubble_rounded,size: 100.0,color: _fileUploadIndicatorColor),
+            Padding(padding: EdgeInsets.fromLTRB(40, 20,40, 20),
+            child: Text(
+              _fileUploadStatus,
               style: Theme.of(context).textTheme.headline4,
+              textAlign: TextAlign.center,
+            )),
+            Text(
+              '$_fileName',
+              style: Theme.of(context).textTheme.headline6,
             ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  FloatingActionButton(
-                      onPressed: _incrementCounter,
-                      child: Text("+")
-                  ),
-                  FloatingActionButton(
-                    onPressed: _decrementCounter,
-                    child: Text("-"),
-                  )
-                ]
-            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _uploadChat,
-        tooltip: 'Increment',
-        child: Icon(Icons.upload_file),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: _fabPressed,
+        backgroundColor: _fabColor,
+        child: _fabwidget,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat
+      ,
     );
   }
 }
