@@ -42,8 +42,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  File? _uploadedFile;
   String _fileUploadStatus = "Upload your chat file";
   String? _fileName;
   List<PlatformFile>? _paths;
@@ -51,6 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Color _fabColor = Colors.blue;
   Widget _fabwidget = Icon(Icons.upload_file);
+
+  File? uploadedFile;
 
   void _fabPressed()  {
     if(_fileName != null) {
@@ -108,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _paths != null ? _paths!.map((e) => e.name).toString() : '...';
       _fileUploadStatus = "File loaded";
       _fileUploadIndicatorColor = Colors.blue;
+      uploadedFile = File(_paths!.first.path!);
       setProcessState();
     });
   }
@@ -121,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         centerTitle: true,
+        backgroundColor: _fileUploadIndicatorColor,
       ),
       body: Center(
         child: Column(
@@ -144,6 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _fabPressed,
         backgroundColor: _fabColor,
         child: _fabwidget,
+
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat
       ,
