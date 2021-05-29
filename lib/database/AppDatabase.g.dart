@@ -60,10 +60,12 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
+  MessagesDao? _messagesDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -85,5 +87,60 @@ class _$AppDatabase extends AppDatabase {
       },
     );
     return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
+  }
+
+  @override
+  MessagesDao get messagesDao {
+    return _messagesDaoInstance ??= _$MessagesDao(database, changeListener);
+  }
+}
+
+class _$MessagesDao extends MessagesDao {
+  _$MessagesDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _messageInsertionAdapter = InsertionAdapter(
+            database,
+            'Message',
+            (Message item) => <String, Object?>{
+                  'messageID': item.messageID,
+                  'messageDate': item.messageDate,
+                  'messageTime': item.messageTime,
+                  'senderName': item.senderName,
+                  'messageText': item.messageText
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Message> _messageInsertionAdapter;
+
+  @override
+  Future<List<Message>> getAllMessages() async {
+    return _queryAdapter.queryList('select * from Message',
+        mapper: (Map<String, Object?> row) => Message(
+            row['messageID'] as int,
+            row['messageDate'] as String,
+            row['messageTime'] as String,
+            row['senderName'] as String,
+            row['messageText'] as String));
+  }
+
+  @override
+  Future<void> clearAllMessages() async {
+    await _queryAdapter.queryNoReturn('delete from Message');
+  }
+
+  @override
+  Future<void> insertMessage(Message message) async {
+    await _messageInsertionAdapter.insert(message, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> insertAllMessage(List<Message> messages) async {
+    await _messageInsertionAdapter.insertList(
+        messages, OnConflictStrategy.abort);
   }
 }

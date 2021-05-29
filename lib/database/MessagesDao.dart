@@ -1,6 +1,7 @@
 import 'package:chat_stats/database/Message.dart';
 import 'package:floor/floor.dart';
 
+@dao
 abstract class MessagesDao {
   @Query("select * from Message")
   Future<List<Message>> getAllMessages();

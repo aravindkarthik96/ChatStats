@@ -62,7 +62,14 @@ Message? generateMessage(String rawMessage, int index) {
 class MessageProcessor {
    insertMessagesIntoDB(File uploadedFile) async {
     var list = await uploadedFile.readAsLines();
-    return await compute(loopMessages,list);
+    var db = await databaseFuture;
+    var messagesList = await compute(loopMessages,list);
+    await db.messagesDao.clearAllMessages();
+    await db.messagesDao.insertAllMessage(messagesList).whenComplete(() => {
+      print("inserted all records into the DB")
+    }).onError((error, stackTrace) =>
+      print("failed to insert records")
+    );
   }
 
 }
