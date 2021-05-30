@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:chat_stats/processor/MessageProcessor.dart';
+import 'package:chat_stats/pages/privacy/PrivacyPolicyPage.dart';
 import 'package:chat_stats/pages/stats/ViewChatStatsPage.dart';
+import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:chat_stats/processor/MessageStatsExtractor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class _UploadChatState extends State<UploadChatPage> {
     var db = await databaseFuture;
     var messageCount = await getTotalMessagesExchanged(db);
     var participants = await getParticipants(db);
-    if(messageCount != null && messageCount > 0) {
+    if (messageCount != null && messageCount > 0) {
       _fileName = "Chat of ${getParticipantsNames(participants)}";
       updateState(PROCESSING_COMPLETE_STATE);
     }
@@ -66,6 +67,14 @@ class _UploadChatState extends State<UploadChatPage> {
 
   void _reset() {
     updateState(APP_OPEN_STATE);
+  }
+
+  void _openPrivacyPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => PrivacyPolicyPage(title: widget.title)),
+    );
   }
 
   void updateState(int newState) {
@@ -129,7 +138,7 @@ class _UploadChatState extends State<UploadChatPage> {
     setState(() {
       print(_paths!.first.extension);
       _fileName =
-      _paths != null ? _paths!.map((e) => e.name).toString() : '...';
+          _paths != null ? _paths!.map((e) => e.name).toString() : '...';
       uploadedFile = File(_paths!.first.path!);
       updateState(FILE_UPLOADED_STATE);
     });
@@ -162,14 +171,30 @@ class _UploadChatState extends State<UploadChatPage> {
               '$_fileName',
               style: Theme.of(context).textTheme.headline6,
             ),
-            TextButton(onPressed: _reset, child: Text("Reset"))
+            TextButton(onPressed: _reset, child: Text("Reset")),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _fabPressed,
-        backgroundColor: _fabColor,
-        child: _fabwidget,
+      floatingActionButton: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Wrap(
+            spacing: 16,
+            children: [
+              FloatingActionButton(
+                onPressed: _openPrivacyPage,
+                backgroundColor: Colors.amberAccent,
+                child: Icon(Icons.privacy_tip),
+              ),
+              FloatingActionButton(
+                onPressed: _fabPressed,
+                backgroundColor: _fabColor,
+                child: _fabwidget,
+              )
+            ],
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
