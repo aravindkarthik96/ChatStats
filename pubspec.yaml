@@ -28,11 +28,14 @@ dependencies:
       url: git://github.com/miguelpruivo/flutter_file_picker.git
   cupertino_icons: ^1.0.2
   floor: ^1.1.0
+  hive_flutter: ^1.0.0
+  hive: ^2.0.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   floor_generator: ^1.1.0
+  hive_generator: ^1.1.0
   build_runner: ^2.0.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

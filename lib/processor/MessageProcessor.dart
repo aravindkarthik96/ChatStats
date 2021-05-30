@@ -1,7 +1,12 @@
 import 'dart:io';
+import 'dart:isolate';
+
 import 'package:chat_stats/database/AppDatabase.dart';
 import 'package:chat_stats/database/Message.dart';
 import 'package:flutter/foundation.dart';
+
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 final databaseFuture = $FloorAppDatabase.databaseBuilder('app_database.db').build();
 
@@ -59,6 +64,10 @@ class MessageProcessor {
    insertMessagesIntoDB(File uploadedFile) async {
     var list = await uploadedFile.readAsLines();
     var db = await databaseFuture;
+
+    var hiveDb = await Hive.initFlutter();
+    var messagesBox = Hive.openBox("messages");
+
     var messagesList = await compute(loopMessages,list);
     await db.messagesDao.clearAllMessages();
     await db.messagesDao.insertAllMessage(messagesList).whenComplete(() => {

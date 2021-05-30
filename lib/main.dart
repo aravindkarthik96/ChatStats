@@ -1,10 +1,14 @@
+import 'dart:collection';
 import 'dart:io';
 
+import 'package:chat_stats/database/AppDatabase.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,30 +35,131 @@ class MyApp extends StatelessWidget {
 }
 
 class ViewChatStatsPage extends StatefulWidget {
+  final String title;
   ViewChatStatsPage({Key? key, required this.title}) : super(key: key);
 
-  final String title;
+
 
   @override
-  _ViewChatStatsPage createState() => _ViewChatStatsPage();
+  _ViewChatStatsPage createState() {
+    return _ViewChatStatsPage();
+  }
 }
 
 class _ViewChatStatsPage extends State<ViewChatStatsPage> {
+
+  int? _totalMessagesExchanged = 0;
+  String? _chatParticipants;
+  String _participantStats = "";
+
+  var _oldestText = "";
+
+  _ViewChatStatsPage() {
+    loadData();
+  }
+
+  void loadData() async {
+    var db = await databaseFuture;
+
+
+    var messagesDao = db.messagesDao;
+    // _totalMessagesExchanged = await getTotalMessagesExchanged(db);
+    _totalMessagesExchanged = await getTotalMessagesExchanged(db);
+    var participants = await getParticipants(db);
+    _chatParticipants = participants.toString();
+    _participantStats = "";
+    participants.forEach((participant) async {
+      var messageCountForParticipant = await getMessageCountForParticipant(participant, db);
+      var participantStat = "$participant has sent $messageCountForParticipant messages \n";
+      print(participantStat);
+      _participantStats = _participantStats + participantStat;
+    });
+
+    _oldestText = await getOldestText(db);
+
+    setState(() {
+
+    });
+  }
+
+  Future<int?> getTotalMessagesExchanged(db) async {
+    var result = await db.database.rawQuery("select count(*) as count from Message");
+    print(result);
+    var count = result.first["count"];
+    print(count);
+    return count;
+  }
+
+  Future<List<String>> getParticipants(AppDatabase db) async {
+    var result = await db.database.rawQuery("select distinct senderName from Message");
+    var participants = "";
+    print(result.length);
+    List<String> participantsList = [];
+
+    result.forEach((element) {
+      print(element.values);
+      participantsList.add(element.values.first.toString());
+      participants = participants + element.values.first.toString() + " ";
+    });
+
+    print(participants);
+
+    return participantsList;
+  }
+
+  Future<int?> getMessageCountForParticipant(participant, AppDatabase db) async {
+    var result = await db.database.rawQuery("select count(*) as count from Message where senderName = '$participant'");
+    var count = result.first["count"];
+    return count as int;
+  }
+
+  Future<String> getOldestText(AppDatabase db) async {
+    var result = await db.database.rawQuery("select min(messageDate) as date from Message");
+    var date = result.first["date"];
+    return date.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(_chatParticipants.toString()),
         centerTitle: true,
         backgroundColor: Colors.green,
       ),
       body: Column(
-        children: [],
+        children: [
+          Text(
+            "Total messages exchanged: \n" +  _totalMessagesExchanged.toString(),
+            style: Theme.of(context).textTheme.headline6,
+            textAlign: TextAlign.start,
+            softWrap: true,
+          ),
+          Text(
+            "Participants: \n" + _chatParticipants.toString(),
+            style: Theme.of(context).textTheme.headline6,
+            textAlign: TextAlign.start,
+            softWrap: true,
+          ),
+          Text(
+            "Participants stats: \n" + _participantStats.toString(),
+            style: Theme.of(context).textTheme.headline6,
+            textAlign: TextAlign.start,
+            softWrap: true,
+          ),
+          Text(
+            "Oldest text: \n" + _oldestText.toString(),
+            style: Theme.of(context).textTheme.headline6,
+            textAlign: TextAlign.start,
+            softWrap: true,
+          )
+        ],
       ),
     );
   }
+
 }
 
 class UploadChatPage extends StatefulWidget {

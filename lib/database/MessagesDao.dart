@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:chat_stats/database/Message.dart';
 import 'package:floor/floor.dart';
 
@@ -6,14 +8,14 @@ abstract class MessagesDao {
   @Query("select * from Message")
   Future<List<Message>> getAllMessages();
 
-  @Query("select count(*) from Message")
-  Future<int?> getMessageCount();
+  @Query("SELECT COUNT(*) FROM Message")
+  Future<Iterable<String>?> getMessageCount();
 
   @Query("select count(*) from Message where senderName = :senderName")
-  Future<int?> getMessageCountFor(String senderName);
+  Future<String?> getMessageCountFor(String senderName);
 
-  @Query("select count(distinct senderName) from Message")
-  Future<List<String>> getParticipants();
+  @Query("select distinct senderName from Message")
+  Future<Iterable<String>?> getParticipants();
 
   @insert
   Future<void> insertMessage(Message message);

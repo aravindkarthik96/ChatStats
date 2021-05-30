@@ -129,21 +129,21 @@ class _$MessagesDao extends MessagesDao {
   }
 
   @override
-  Future<int?> getMessageCount() async {
-    await _queryAdapter.queryNoReturn('select count(*) from Message');
+  Future<Iterable<String>?> getMessageCount() async {
+    await _queryAdapter.queryNoReturn('SELECT COUNT(*) FROM Message');
   }
 
   @override
-  Future<int?> getMessageCountFor(String senderName) async {
+  Future<String?> getMessageCountFor(String senderName) async {
     await _queryAdapter.queryNoReturn(
         'select count(*) from Message where senderName = ?1',
         arguments: [senderName]);
   }
 
   @override
-  Future<List<String>> getParticipants() async {
+  Future<Iterable<String>?> getParticipants() async {
     await _queryAdapter
-        .queryNoReturn('select count(distinct senderName) from Message');
+        .queryNoReturn('select distinct senderName from Message');
   }
 
   @override
