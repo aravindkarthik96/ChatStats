@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:chat_stats/pages/stats/ViewChatStatsPage.dart';
+import 'package:chat_stats/processor/MessageStatsExtractor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,20 @@ class _UploadChatState extends State<UploadChatPage> {
   File? uploadedFile;
 
   int _currentState = APP_OPEN_STATE;
+
+  _UploadChatState() {
+    lookForOldChats();
+  }
+
+  void lookForOldChats() async {
+    var db = await databaseFuture;
+    var messageCount = await getTotalMessagesExchanged(db);
+    var participants = await getParticipants(db);
+    if(messageCount != null && messageCount > 0) {
+      _fileName = "Chat of ${getParticipantsNames(participants)}";
+      updateState(PROCESSING_COMPLETE_STATE);
+    }
+  }
 
   void _fabPressed() {
     if (_currentState == FILE_UPLOADED_STATE) {
