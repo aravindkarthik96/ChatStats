@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_stats/database/AppDatabase.dart';
 import 'package:chat_stats/pages/privacy/PrivacyPolicyPage.dart';
 import 'package:chat_stats/pages/stats/ViewChatStatsPage.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
@@ -43,11 +44,18 @@ class _UploadChatState extends State<UploadChatPage> {
   void lookForOldChats() async {
     var db = await databaseFuture;
     var messageCount = await getTotalMessagesExchanged(db);
-    var participants = await getParticipants(db);
     if (messageCount != null && messageCount > 0) {
-      _fileName = "Chat of ${getParticipantsNames(participants)}";
+      await setProcessedFileName();
       updateState(PROCESSING_COMPLETE_STATE);
     }
+  }
+
+  Future<void> setProcessedFileName() async {
+    AppDatabase db = await databaseFuture;
+    var participants = await getParticipants(db);
+    setState(() {
+      _fileName = "Chat of ${getParticipantsNames(participants)}";
+    });
   }
 
   void _fabPressed() {
@@ -102,6 +110,7 @@ class _UploadChatState extends State<UploadChatPage> {
         _fileUploadIndicatorColor = Colors.green;
         _fabColor = Colors.green;
         _fabwidget = Icon(Icons.bar_chart_sharp);
+        setProcessedFileName();
       } else if (newState == VIEW_DATA_STATE) {}
       _currentState = newState;
     });
@@ -167,9 +176,13 @@ class _UploadChatState extends State<UploadChatPage> {
                   style: Theme.of(context).textTheme.headline4,
                   textAlign: TextAlign.center,
                 )),
-            Text(
-              '$_fileName',
-              style: Theme.of(context).textTheme.headline6,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                '$_fileName',
+                style: Theme.of(context).textTheme.headline6,
+                textAlign: TextAlign.center,
+              ),
             ),
             TextButton(onPressed: _reset, child: Text("Reset")),
           ],
