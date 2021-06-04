@@ -1,5 +1,6 @@
 import 'package:chat_stats/database/Message.dart';
 import 'package:chat_stats/database/MessageCountOnDay.dart';
+import 'package:flutter/foundation.dart';
 
 Future<int?> getTotalMessagesExchanged(db) async {
   var result =
@@ -65,10 +66,10 @@ Future<MessageCountOnDay> getDayWithTheHighestChatCount(db) async {
       "select distinct messageDate, count(*) as count from Message group by messageDate order by count desc");
   print(data);
   //temp, remove
-  bookingCountPerDay(db);
+  getMessageCountPerDay(db);
   var messageCountOnDay = MessageCountOnDay(
       parseDate(data.first["messageDate"].toString()),
-      data.first["count"].toString(),
+      int.parse(data.first["count"].toString()),
       data.first["messageDate"].toString());
   return messageCountOnDay;
 }
@@ -80,27 +81,29 @@ DateTime parseDate(String dateString) {
   var split = dateString.split("/");
   var dateTime = DateTime(
       (int.parse(split[2])) + 2000, int.parse(split[1]), int.parse(split[0]));
-  print(dateString + " " + dateTime.toString());
+  print(split);
+  print(dateTime);
   return dateTime;
 }
 
-Future<List<MessageCountOnDay>?> bookingCountPerDay(db) async {
+Future<List<MessageCountOnDay>?> getMessageCountPerDay(db) async {
   List<Map<String, Object?>> data = await db.database.rawQuery(
       "select distinct messageDate, count(*) as count from Message group by messageDate");
   print(data);
-  // List<MessageCountOnDay> list = await compute(getMessageCountList, data);
-  return null;
+  var list = await compute(getMessageCountList,data);
+  return list;
 }
 
-Future<List<MessageCountOnDay>> getMessageCountList(
-    List<Map<String, Object>> data) async {
+List<MessageCountOnDay> getMessageCountList(
+    List<Map<String, Object?>> data)  {
   List<MessageCountOnDay> finalList = List.empty(growable: true);
 
   data.forEach((element) {
+    print(element);
     finalList.add(MessageCountOnDay(
-        parseDate(data.first["messageDate"].toString()),
-        element["messageCount"].toString(),
-        data.first["messageDate"].toString()));
+        parseDate(element["messageDate"].toString()),
+        int.parse(element["count"].toString()),
+        element["messageDate"].toString()));
   });
 
   return finalList;

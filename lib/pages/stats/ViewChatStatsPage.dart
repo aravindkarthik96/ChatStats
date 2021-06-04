@@ -1,3 +1,4 @@
+import 'package:chat_stats/charts/DailyMessageCountChart.dart';
 import 'package:chat_stats/database/Message.dart';
 import 'package:chat_stats/database/MessageCountOnDay.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
@@ -20,6 +21,7 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
   int? _totalMessagesExchanged = 0;
   String? _chatParticipants;
   String _participantStats = "";
+  List<MessageCountOnDay> _messageCountOnDayList = [];
 
   Message? _oldestText;
 
@@ -46,6 +48,8 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
 
     _oldestText = await getOldestMessage(db);
     _highestChatCountDate = await getDayWithTheHighestChatCount(db);
+    _messageCountOnDayList =
+        await getMessageCountPerDay(db) ?? _messageCountOnDayList;
     setState(() {});
   }
 
@@ -148,15 +152,38 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                     leading: Icon(Icons.highlight, size: 50),
                     minLeadingWidth: 16.0,
                     title: Text("Highest number of texts in one day"),
-                    subtitle: Text((_highestChatCountDate?.messageCount)
-                            .toString() +
-                        " texts on " +
-                        (_highestChatCountDate?.messageDateString).toString()
-                            .toString()),
+                    subtitle: Text(
+                        (_highestChatCountDate?.messageCount).toString() +
+                            " texts on " +
+                            (_highestChatCountDate?.messageDateString)
+                                .toString()
+                                .toString()),
                   ),
                 ],
               ),
-            )
+            ),
+            Card(
+              margin: cardMargins,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                      leading: Icon(Icons.date_range, size: 50),
+                      minLeadingWidth: 16.0,
+                      title: Text("Message count over time"),
+                      subtitle: Text("Message count progression over time"),
+                  ),
+                  SizedBox(
+                    height: 500,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TimeSeriesBar.withSampleData(_messageCountOnDayList),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Padding(padding: const EdgeInsets.all(16.0),child: null)
           ],
         ),
       ),

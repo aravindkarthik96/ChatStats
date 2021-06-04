@@ -49,6 +49,7 @@ Message? generateMessage(String rawMessage, int index) {
 
   if (indexOfDateTimeSeparator < 0) {return null;}
   var messageDate = messageTimeSection.substring(1, indexOfDateTimeSeparator);
+  if (messageDate.length < 7) {return null;}
 
   print(messageTimeSection);
   var messageTime = messageTimeSection.substring(
