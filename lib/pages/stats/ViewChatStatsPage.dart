@@ -1,5 +1,9 @@
+import 'dart:collection';
+
 import 'package:chat_stats/charts/DailyMessageCountChart.dart';
+import 'package:chat_stats/charts/MessageCountByDayOfWeekPieChart.dart';
 import 'package:chat_stats/database/Message.dart';
+import 'package:chat_stats/database/MessageCountByDay.dart';
 import 'package:chat_stats/database/MessageCountOnDay.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:chat_stats/processor/MessageStatsExtractor.dart';
@@ -27,6 +31,8 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
 
   MessageCountOnDay? _highestChatCountDate;
 
+  List<MessageCountOnDayOfWeek> _dayOfWeekMessageCount = [];
+
   _ViewChatStatsPage() {
     loadData();
   }
@@ -50,6 +56,8 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
     _highestChatCountDate = await getDayWithTheHighestChatCount(db);
     _messageCountOnDayList =
         await getMessageCountPerDay(db) ?? _messageCountOnDayList;
+    _dayOfWeekMessageCount =
+        await getMessageCountByDayOfWeek(_messageCountOnDayList);
     setState(() {});
   }
 
@@ -168,22 +176,45 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ListTile(
-                      leading: Icon(Icons.date_range, size: 50),
-                      minLeadingWidth: 16.0,
-                      title: Text("Message count over time"),
-                      subtitle: Text("Message count progression over time"),
+                    leading: Icon(Icons.date_range, size: 50),
+                    minLeadingWidth: 16.0,
+                    title: Text("Message count over time"),
+                    subtitle: Text("Message count progression over time"),
                   ),
                   SizedBox(
                     height: 500,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: TimeSeriesBar.withSampleData(_messageCountOnDayList),
+                      child:
+                          DailyMessageCountChart.withSampleData(_messageCountOnDayList),
                     ),
                   )
                 ],
               ),
             ),
-            Padding(padding: const EdgeInsets.all(16.0),child: null)
+            Card(
+              margin: cardMargins,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.date_range, size: 50),
+                    minLeadingWidth: 16.0,
+                    title: Text("Message count distribution"),
+                    subtitle: Text("Message count distribution over days of week"),
+                  ),
+                  SizedBox(
+                    height: 400,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child:
+                          MessageCountByDayOfWeekPieChart.withSampleData(_dayOfWeekMessageCount),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Padding(padding: const EdgeInsets.all(16.0), child: null)
           ],
         ),
       ),

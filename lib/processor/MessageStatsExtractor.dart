@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:chat_stats/database/Message.dart';
+import 'package:chat_stats/database/MessageCountByDay.dart';
 import 'package:chat_stats/database/MessageCountOnDay.dart';
 import 'package:flutter/foundation.dart';
 
@@ -90,12 +93,11 @@ Future<List<MessageCountOnDay>?> getMessageCountPerDay(db) async {
   List<Map<String, Object?>> data = await db.database.rawQuery(
       "select distinct messageDate, count(*) as count from Message group by messageDate");
   print(data);
-  var list = await compute(getMessageCountList,data);
+  var list = await compute(getMessageCountList, data);
   return list;
 }
 
-List<MessageCountOnDay> getMessageCountList(
-    List<Map<String, Object?>> data)  {
+List<MessageCountOnDay> getMessageCountList(List<Map<String, Object?>> data) {
   List<MessageCountOnDay> finalList = List.empty(growable: true);
 
   data.forEach((element) {
@@ -107,4 +109,40 @@ List<MessageCountOnDay> getMessageCountList(
   });
 
   return finalList;
+}
+
+Future<List<MessageCountOnDayOfWeek>> getMessageCountByDayOfWeek(List<MessageCountOnDay> data) async {
+  var hashMap = HashMap<String, int>();
+  hashMap.putIfAbsent("Sunday", () => 0);
+  hashMap.putIfAbsent("Monday", () => 0);
+  hashMap.putIfAbsent("Tuesday", () => 0);
+  hashMap.putIfAbsent("Wednesday", () => 0);
+  hashMap.putIfAbsent("Thursday", () => 0);
+  hashMap.putIfAbsent("Friday", () => 0);
+  hashMap.putIfAbsent("Saturday", () => 0);
+
+  data.forEach((element) {
+    var weekday = element.messageDate.weekday;
+    if (weekday == DateTime.sunday) {
+      hashMap["Sunday"] = hashMap["Sunday"]! + element.messageCount;
+    } else if (weekday == DateTime.monday) {
+      hashMap["Monday"] = hashMap["Monday"]! + element.messageCount;
+    } else if (weekday == DateTime.tuesday) {
+      hashMap["Tuesday"] = hashMap["Tuesday"]! + element.messageCount;
+    }else if (weekday == DateTime.wednesday) {
+      hashMap["Wednesday"] = hashMap["Wednesday"]! + element.messageCount;
+    }else if (weekday == DateTime.thursday) {
+      hashMap["Thursday"] = hashMap["Thursday"]! + element.messageCount;
+    }else if (weekday == DateTime.friday) {
+      hashMap["Friday"] = hashMap["Friday"]! + element.messageCount;
+    }else if (weekday == DateTime.saturday) {
+      hashMap["Saturday"] = hashMap["Saturday"]! + element.messageCount;
+    }
+  });
+  List<MessageCountOnDayOfWeek> list = [];
+  hashMap.forEach((key, value) {
+    list.add(MessageCountOnDayOfWeek(key, value));
+  });
+
+  return list;
 }

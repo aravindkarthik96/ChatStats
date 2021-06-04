@@ -2,15 +2,15 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:chat_stats/database/MessageCountOnDay.dart';
 import 'package:flutter/material.dart';
 
-class TimeSeriesBar extends StatelessWidget {
+class DailyMessageCountChart extends StatelessWidget {
   final List<charts.Series<MessageCountOnDay, DateTime>> seriesList;
   final bool animate = true;
 
-  TimeSeriesBar(this.seriesList);
+  DailyMessageCountChart(this.seriesList);
 
-  factory TimeSeriesBar.withSampleData(List<MessageCountOnDay> data) {
+  factory DailyMessageCountChart.withSampleData(List<MessageCountOnDay> data) {
     print(data.length);
-    return new TimeSeriesBar(_createWithData(data));
+    return new DailyMessageCountChart(_createWithData(data));
   }
 
   @override
@@ -42,7 +42,7 @@ class TimeSeriesBar extends StatelessWidget {
     return [
       new charts.Series<MessageCountOnDay, DateTime>(
         id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
         domainFn: (MessageCountOnDay sales, _) => sales.messageDate,
         measureFn: (MessageCountOnDay sales, _) => sales.messageCount,
         data: data,
