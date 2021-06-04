@@ -1,4 +1,5 @@
 import 'package:chat_stats/database/Message.dart';
+import 'package:chat_stats/database/MessageCountOnDay.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:chat_stats/processor/MessageStatsExtractor.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +7,8 @@ import 'package:flutter/widgets.dart';
 
 class ViewChatStatsPage extends StatefulWidget {
   final String title;
+
   ViewChatStatsPage({Key? key, required this.title}) : super(key: key);
-
-
 
   @override
   _ViewChatStatsPage createState() {
@@ -17,12 +17,13 @@ class ViewChatStatsPage extends StatefulWidget {
 }
 
 class _ViewChatStatsPage extends State<ViewChatStatsPage> {
-
   int? _totalMessagesExchanged = 0;
   String? _chatParticipants;
   String _participantStats = "";
 
   Message? _oldestText;
+
+  MessageCountOnDay? _highestChatCountDate;
 
   _ViewChatStatsPage() {
     loadData();
@@ -35,17 +36,17 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
     _chatParticipants = getParticipantsNames(participants);
     _participantStats = "";
     participants.forEach((participant) async {
-      var messageCountForParticipant = await getMessageCountForParticipant(participant, db);
-      var participantStat = "$participant has sent $messageCountForParticipant messages \n";
+      var messageCountForParticipant =
+          await getMessageCountForParticipant(participant, db);
+      var participantStat =
+          "$participant has sent $messageCountForParticipant messages \n";
       print(participantStat);
       _participantStats = _participantStats + participantStat;
     });
 
     _oldestText = await getOldestMessage(db);
-
-    setState(() {
-
-    });
+    _highestChatCountDate = await getDayWithTheHighestChatCount(db);
+    setState(() {});
   }
 
   @override
@@ -68,7 +69,10 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ListTile(
-                    leading: Icon(Icons.send_to_mobile, size: 50,),
+                    leading: Icon(
+                      Icons.send_to_mobile,
+                      size: 50,
+                    ),
                     minLeadingWidth: 16.0,
                     title: Text("Total messages exchanged"),
                     subtitle: Text(_totalMessagesExchanged.toString()),
@@ -113,7 +117,9 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                     leading: Icon(Icons.update, size: 50),
                     minLeadingWidth: 16.0,
                     title: Text("Conversation begin date"),
-                    subtitle: Text((_oldestText?.messageDate).toString() +" , "+ (_oldestText?.messageTime).toString()),
+                    subtitle: Text((_oldestText?.messageDate).toString() +
+                        " , " +
+                        (_oldestText?.messageTime).toString()),
                   ),
                 ],
               ),
@@ -127,7 +133,26 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                     leading: Icon(Icons.add_comment, size: 50),
                     minLeadingWidth: 16.0,
                     title: Text("First Text"),
-                    subtitle: Text((_oldestText?.senderName).toString() + (_oldestText?.messageText).toString()),
+                    subtitle: Text((_oldestText?.senderName).toString() +
+                        (_oldestText?.messageText).toString()),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              margin: cardMargins,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.highlight, size: 50),
+                    minLeadingWidth: 16.0,
+                    title: Text("Highest number of texts in one day"),
+                    subtitle: Text((_highestChatCountDate?.messageCount)
+                            .toString() +
+                        " texts on " +
+                        (_highestChatCountDate?.messageDateString).toString()
+                            .toString()),
                   ),
                 ],
               ),
@@ -137,5 +162,4 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
       ),
     );
   }
-
 }
