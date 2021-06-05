@@ -1,8 +1,10 @@
 import 'dart:collection';
 
+import 'package:chat_stats/database/AppDatabase.dart';
 import 'package:chat_stats/database/Message.dart';
 import 'package:chat_stats/database/MessageCountByDay.dart';
 import 'package:chat_stats/database/MessageCountOnDay.dart';
+import 'package:chat_stats/database/MessageEmojis.dart';
 import 'package:flutter/foundation.dart';
 
 Future<int?> getTotalMessagesExchanged(db) async {
@@ -111,7 +113,8 @@ List<MessageCountOnDay> getMessageCountList(List<Map<String, Object?>> data) {
   return finalList;
 }
 
-Future<List<MessageCountOnDayOfWeek>> getMessageCountByDayOfWeek(List<MessageCountOnDay> data) async {
+Future<List<MessageCountOnDayOfWeek>> getMessageCountByDayOfWeek(
+    List<MessageCountOnDay> data) async {
   var hashMap = HashMap<String, int>();
   hashMap.putIfAbsent("Sunday", () => 0);
   hashMap.putIfAbsent("Monday", () => 0);
@@ -129,13 +132,13 @@ Future<List<MessageCountOnDayOfWeek>> getMessageCountByDayOfWeek(List<MessageCou
       hashMap["Monday"] = hashMap["Monday"]! + element.messageCount;
     } else if (weekday == DateTime.tuesday) {
       hashMap["Tuesday"] = hashMap["Tuesday"]! + element.messageCount;
-    }else if (weekday == DateTime.wednesday) {
+    } else if (weekday == DateTime.wednesday) {
       hashMap["Wednesday"] = hashMap["Wednesday"]! + element.messageCount;
-    }else if (weekday == DateTime.thursday) {
+    } else if (weekday == DateTime.thursday) {
       hashMap["Thursday"] = hashMap["Thursday"]! + element.messageCount;
-    }else if (weekday == DateTime.friday) {
+    } else if (weekday == DateTime.friday) {
       hashMap["Friday"] = hashMap["Friday"]! + element.messageCount;
-    }else if (weekday == DateTime.saturday) {
+    } else if (weekday == DateTime.saturday) {
       hashMap["Saturday"] = hashMap["Saturday"]! + element.messageCount;
     }
   });
@@ -145,4 +148,33 @@ Future<List<MessageCountOnDayOfWeek>> getMessageCountByDayOfWeek(List<MessageCou
   });
 
   return list;
+}
+
+var emojiRegex = RegExp(
+    "r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])'");
+RegExp rx = RegExp(
+    r'[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]',
+    unicode: true);
+
+Future<List<MessageEmojis>> getEmojis(AppDatabase db) async {
+  final data = await db.messagesDao.getAllMessages();
+  print("EXTRACTING EMOJI");
+  List<MessageEmojis> messageEmojis = [];
+  data.forEach((element) {
+    var messageEmojiList =
+        rx.allMatches(element.messageText).map((z) => z.group(0)).toList();
+    messageEmojiList.forEach((emojis) {
+      if (emojis != null) {
+        messageEmojis.add(MessageEmojis(
+            element.messageID,
+            parseDate(element.messageDate),
+            element.messageTime,
+            element.senderName,
+            emojis));
+      }
+    });
+  });
+  print("EMOJI: ${messageEmojis.length}");
+
+  return messageEmojis;
 }
