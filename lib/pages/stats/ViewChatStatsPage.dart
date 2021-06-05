@@ -1,12 +1,11 @@
-import 'dart:collection';
-
-import 'package:chat_stats/charts/DailyMessageCountChart.dart';
-import 'package:chat_stats/charts/MessageCountByDayOfWeekPieChart.dart';
-import 'package:chat_stats/database/Message.dart';
-import 'package:chat_stats/database/MessageCountByDay.dart';
-import 'package:chat_stats/database/MessageCountOnDay.dart';
+import 'package:chat_stats/database/messages/Message.dart';
+import 'package:chat_stats/database/messages/MessageCountByDay.dart';
+import 'package:chat_stats/database/messages/MessageCountOnDay.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:chat_stats/processor/MessageStatsExtractor.dart';
+import 'package:chat_stats/uicomponents/DailyMessageCountChart.dart';
+import 'package:chat_stats/uicomponents/EmojiStatsWidget.dart';
+import 'package:chat_stats/uicomponents/MessageCountByDayOfWeekPieChart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -185,8 +184,8 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                     height: 500,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child:
-                          DailyMessageCountChart.withSampleData(_messageCountOnDayList),
+                      child: DailyMessageCountChart.withSampleData(
+                          _messageCountOnDayList),
                     ),
                   )
                 ],
@@ -201,19 +200,21 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                     leading: Icon(Icons.date_range, size: 50),
                     minLeadingWidth: 16.0,
                     title: Text("Message count distribution"),
-                    subtitle: Text("Message count distribution over days of week"),
+                    subtitle:
+                        Text("Message count distribution over days of week"),
                   ),
                   SizedBox(
                     height: 400,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child:
-                          MessageCountByDayOfWeekPieChart.withSampleData(_dayOfWeekMessageCount),
+                      child: MessageCountByDayOfWeekPieChart.withSampleData(
+                          _dayOfWeekMessageCount),
                     ),
                   )
                 ],
               ),
             ),
+            EmojiStatsWidget(),
             Padding(padding: const EdgeInsets.all(16.0), child: null)
           ],
         ),

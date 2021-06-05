@@ -62,10 +62,12 @@ class _$AppDatabase extends AppDatabase {
 
   MessagesDao? _messagesDaoInstance;
 
+  MessageEmojiDao? _messageEmojiDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -82,6 +84,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Message` (`messageID` INTEGER NOT NULL, `messageDate` TEXT NOT NULL, `messageTime` TEXT NOT NULL, `senderName` TEXT NOT NULL, `messageText` TEXT NOT NULL, PRIMARY KEY (`messageID`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `MessageEmojis` (`emojiID` INTEGER NOT NULL, `messageID` INTEGER NOT NULL, `messageDate` TEXT NOT NULL, `messageTime` TEXT NOT NULL, `senderName` TEXT NOT NULL, `emoji` TEXT NOT NULL, PRIMARY KEY (`emojiID`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -92,6 +96,12 @@ class _$AppDatabase extends AppDatabase {
   @override
   MessagesDao get messagesDao {
     return _messagesDaoInstance ??= _$MessagesDao(database, changeListener);
+  }
+
+  @override
+  MessageEmojiDao get messageEmojiDao {
+    return _messageEmojiDaoInstance ??=
+        _$MessageEmojiDao(database, changeListener);
   }
 }
 
@@ -160,5 +170,65 @@ class _$MessagesDao extends MessagesDao {
   Future<void> insertAllMessage(List<Message> messages) async {
     await _messageInsertionAdapter.insertList(
         messages, OnConflictStrategy.abort);
+  }
+}
+
+class _$MessageEmojiDao extends MessageEmojiDao {
+  _$MessageEmojiDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _messageEmojisInsertionAdapter = InsertionAdapter(
+            database,
+            'MessageEmojis',
+            (MessageEmojis item) => <String, Object?>{
+                  'emojiID': item.emojiID,
+                  'messageID': item.messageID,
+                  'messageDate': item.messageDate,
+                  'messageTime': item.messageTime,
+                  'senderName': item.senderName,
+                  'emoji': item.emoji
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<MessageEmojis> _messageEmojisInsertionAdapter;
+
+  @override
+  Future<void> clearAllEmojis() async {
+    await _queryAdapter.queryNoReturn('delete from MessageEmojis');
+  }
+
+  @override
+  Future<Map<String, Object>?> getUniqueEmojiCount() async {
+    await _queryAdapter
+        .queryNoReturn('SELECT COUNT(distinct emoji) FROM MessageEmojis');
+  }
+
+  @override
+  Future<Map<String, Object>?> getUsagePerEmoji() async {
+    await _queryAdapter.queryNoReturn(
+        'SELECT emoji, COUNT(emoji) as count FROM MessageEmojis group by emoji order by count desc');
+  }
+
+  @override
+  Future<Map<String, Object>?> getMessageCountFor(String senderName) async {
+    await _queryAdapter.queryNoReturn(
+        'select count(*) from MessageEmojis where senderName = ?1',
+        arguments: [senderName]);
+  }
+
+  @override
+  Future<Map<String, Object>?> getParticipants() async {
+    await _queryAdapter
+        .queryNoReturn('select distinct senderName from MessageEmojis');
+  }
+
+  @override
+  Future<void> insertMessageEmojis(List<MessageEmojis> emojis) async {
+    await _messageEmojisInsertionAdapter.insertList(
+        emojis, OnConflictStrategy.abort);
   }
 }

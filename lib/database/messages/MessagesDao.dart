@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:chat_stats/database/Message.dart';
+import 'package:chat_stats/database/messages/Message.dart';
 import 'package:floor/floor.dart';
 
 @dao

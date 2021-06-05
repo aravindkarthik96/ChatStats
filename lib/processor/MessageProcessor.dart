@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:chat_stats/database/AppDatabase.dart';
-import 'package:chat_stats/database/Message.dart';
-import 'package:chat_stats/database/MessageEmojis.dart';
+import 'package:chat_stats/database/messages/Message.dart';
+import 'package:chat_stats/database/emojis/MessageEmojis.dart';
 import 'package:flutter/foundation.dart';
 
 final databaseFuture =

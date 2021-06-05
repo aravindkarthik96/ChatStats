@@ -1,10 +1,10 @@
 import 'dart:collection';
 
 import 'package:chat_stats/database/AppDatabase.dart';
-import 'package:chat_stats/database/Message.dart';
-import 'package:chat_stats/database/MessageCountByDay.dart';
-import 'package:chat_stats/database/MessageCountOnDay.dart';
-import 'package:chat_stats/database/MessageEmojis.dart';
+import 'package:chat_stats/database/messages/Message.dart';
+import 'package:chat_stats/database/messages/MessageCountByDay.dart';
+import 'package:chat_stats/database/messages/MessageCountOnDay.dart';
+import 'package:chat_stats/database/emojis/MessageEmojis.dart';
 import 'package:flutter/foundation.dart';
 
 Future<int?> getTotalMessagesExchanged(db) async {
@@ -166,8 +166,9 @@ Future<List<MessageEmojis>> getEmojis(AppDatabase db) async {
     messageEmojiList.forEach((emojis) {
       if (emojis != null) {
         messageEmojis.add(MessageEmojis(
+            messageEmojis.length,
             element.messageID,
-            parseDate(element.messageDate),
+            element.messageDate,
             element.messageTime,
             element.senderName,
             emojis));

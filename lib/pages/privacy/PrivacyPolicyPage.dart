@@ -1,4 +1,4 @@
-import 'package:chat_stats/database/Message.dart';
+import 'package:chat_stats/database/messages/Message.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
 import 'package:chat_stats/processor/MessageStatsExtractor.dart';
 import 'package:flutter/material.dart';

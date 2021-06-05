@@ -1,5 +1,5 @@
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:chat_stats/database/MessageCountByDay.dart';
+import 'package:chat_stats/database/messages/MessageCountByDay.dart';
 import 'package:flutter/material.dart';
 
 class MessageCountByDayOfWeekPieChart extends StatelessWidget {
