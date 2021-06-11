@@ -201,7 +201,7 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
                     minLeadingWidth: 16.0,
                     title: Text("Message count distribution"),
                     subtitle:
-                        Text("Message count distribution over days of week"),
+                        Text("Insights about your emoji usage"),
                   ),
                   SizedBox(
                     height: 400,

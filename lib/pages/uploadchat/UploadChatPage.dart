@@ -196,11 +196,13 @@ class _UploadChatState extends State<UploadChatPage> {
             spacing: 16,
             children: [
               FloatingActionButton(
+                heroTag: "privacy_button",
                 onPressed: _openPrivacyPage,
                 backgroundColor: Colors.amberAccent,
                 child: Icon(Icons.privacy_tip),
               ),
               FloatingActionButton(
+                heroTag: "action button",
                 onPressed: _fabPressed,
                 backgroundColor: _fabColor,
                 child: _fabwidget,

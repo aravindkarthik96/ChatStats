@@ -12,7 +12,7 @@ abstract class MessageEmojiDao {
   Future<Map<String, Object>?> getUniqueEmojiCount();
 
   @Query("SELECT emoji, COUNT(emoji) as count FROM MessageEmojis group by emoji order by count desc")
-  Future<Map<String, Object>?> getUsagePerEmoji();
+  Future<Object?> getUsagePerEmoji();
 
   @Query("select count(*) from MessageEmojis where senderName = :senderName")
   Future<Map<String, Object>?> getMessageCountFor(String senderName);

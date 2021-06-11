@@ -1,10 +1,12 @@
 import 'dart:collection';
 
 import 'package:chat_stats/database/AppDatabase.dart';
+import 'package:chat_stats/database/emojis/MessageEmojiCounts.dart';
+import 'package:chat_stats/database/emojis/MessageEmojiDao.dart';
+import 'package:chat_stats/database/emojis/MessageEmojis.dart';
 import 'package:chat_stats/database/messages/Message.dart';
 import 'package:chat_stats/database/messages/MessageCountByDay.dart';
 import 'package:chat_stats/database/messages/MessageCountOnDay.dart';
-import 'package:chat_stats/database/emojis/MessageEmojis.dart';
 import 'package:flutter/foundation.dart';
 
 Future<int?> getTotalMessagesExchanged(db) async {
@@ -178,4 +180,21 @@ Future<List<MessageEmojis>> getEmojis(AppDatabase db) async {
   print("EMOJI: ${messageEmojis.length}");
 
   return messageEmojis;
+}
+
+Future<MessageEmojiCountStats> getTopUsedEmoji(MessageEmojiDao messageEmojiDao, AppDatabase db) async {
+  List<Map<String, Object?>> data = await db.database.rawQuery(
+      "SELECT emoji, COUNT(emoji) as count FROM MessageEmojis group by emoji order by count desc");
+  List<MessageEmojiCount> topEmojisList = [];
+  var max = 10;
+  if (data.length < 10) {
+    max = data.length;
+  }
+  data.sublist(0, max).forEach((element) {
+    topEmojisList.add(MessageEmojiCount(
+        element["emoji"].toString(), int.parse(element["count"].toString())));
+  });
+  print("EMOJIS: " + topEmojisList.toString());
+
+  return MessageEmojiCountStats(topEmojisList, data.length);
 }

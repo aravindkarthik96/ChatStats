@@ -208,7 +208,7 @@ class _$MessageEmojiDao extends MessageEmojiDao {
   }
 
   @override
-  Future<Map<String, Object>?> getUsagePerEmoji() async {
+  Future<Object?> getUsagePerEmoji() async {
     await _queryAdapter.queryNoReturn(
         'SELECT emoji, COUNT(emoji) as count FROM MessageEmojis group by emoji order by count desc');
   }
