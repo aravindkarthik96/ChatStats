@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_stats/database/AppDatabase.dart';
+import 'package:chat_stats/pages/instructions/InstructionsPage.dart';
 import 'package:chat_stats/pages/privacy/PrivacyPolicyPage.dart';
 import 'package:chat_stats/pages/stats/ViewChatStatsPage.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
@@ -27,7 +28,7 @@ class UploadChatPage extends StatefulWidget {
 
 class _UploadChatState extends State<UploadChatPage> {
   String _fileUploadStatus = "Upload your chat file";
-  String? _fileName;
+  String? _fileName = "";
   List<PlatformFile>? _paths;
   Color _fileUploadIndicatorColor = Colors.grey;
   Color _fabColor = Colors.blue;
@@ -77,6 +78,14 @@ class _UploadChatState extends State<UploadChatPage> {
     updateState(APP_OPEN_STATE);
   }
 
+  void _openInstructions() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => InstructionsPage(title: widget.title)),
+    );
+  }
+
   void _openPrivacyPage() {
     Navigator.push(
       context,
@@ -93,7 +102,7 @@ class _UploadChatState extends State<UploadChatPage> {
         _fabColor = Colors.grey;
         _fabwidget = Icon(Icons.upload_file);
         uploadedFile = null;
-        _fileName = null;
+        _fileName = "";
         _paths = null;
       } else if (newState == FILE_UPLOADED_STATE) {
         _fileUploadStatus = "File Selected";
@@ -184,7 +193,7 @@ class _UploadChatState extends State<UploadChatPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-            TextButton(onPressed: _reset, child: Text("Reset")),
+            getRestButton()
           ],
         ),
       ),
@@ -213,5 +222,13 @@ class _UploadChatState extends State<UploadChatPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  TextButton getRestButton() {
+    if(_fileName != null && _fileName!.isNotEmpty) {
+      return TextButton(onPressed: _reset, child: Text("Reset"));
+    } else {
+      return TextButton(onPressed: _openInstructions, child: Text("Instructions"));
+    }
   }
 }

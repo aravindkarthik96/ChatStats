@@ -2,7 +2,7 @@
     package="com.aravindkarthik.chat_stats">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
    <application
-        android:label="chat_stats"
+        android:label="Chat Stats"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
