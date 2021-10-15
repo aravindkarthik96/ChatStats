@@ -32,8 +32,9 @@ dependencies:
   hive: ^2.0.4
   intl: ^0.17.0
   jiffy: ^4.1.0
-  charts_flutter: ^0.10.0
-  fl_chart: ^0.36.1
+  charts_flutter: ^0.11.0
+  fl_chart: ^0.40.2
+  receive_sharing_intent: ^1.4.5
 
 dev_dependencies:
   flutter_test:
