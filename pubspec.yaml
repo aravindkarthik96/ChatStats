@@ -35,6 +35,7 @@ dependencies:
   charts_flutter: ^0.11.0
   fl_chart: ^0.40.2
   receive_sharing_intent: ^1.4.5
+  flutter_smart_reply: ^0.0.2
 
 dependency_overrides:
   charts_flutter:

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:chat_stats/database/AppDatabase.dart';
+import 'package:chat_stats/pages/chatbot/ChatBotPage.dart';
+import 'package:chat_stats/pages/chatbot/SmartRepliesTester.dart';
 import 'package:chat_stats/pages/instructions/InstructionsPage.dart';
 import 'package:chat_stats/pages/privacy/PrivacyPolicyPage.dart';
 import 'package:chat_stats/pages/stats/ViewChatStatsPage.dart';
@@ -92,6 +94,14 @@ class _UploadChatState extends State<UploadChatPage> {
             builder: (context) => ViewChatStatsPage(title: widget.title)),
       );
     }
+  }
+
+  void _openChatBot() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SmartRepliesTester()),
+    );
   }
 
   @override
@@ -255,7 +265,8 @@ class _UploadChatState extends State<UploadChatPage> {
                 onPressed: _fabPressed,
                 backgroundColor: _fabColor,
                 child: _fabwidget,
-              )
+              ),
+              getStartChatButton(_currentState)
             ],
           ),
         ),
@@ -269,6 +280,24 @@ class _UploadChatState extends State<UploadChatPage> {
       return TextButton(onPressed: _reset, child: Text("Reset"));
     } else {
       return TextButton(onPressed: _openInstructions, child: Text("Instructions"));
+    }
+  }
+
+  Widget getStartChatButton(int currentState) {
+    if(_currentState == PROCESSING_COMPLETE_STATE) {
+      return FloatingActionButton(
+        heroTag: "Create bot",
+        onPressed: _openChatBot,
+        backgroundColor: Colors.blueAccent,
+        child: Icon(Icons.assignment_ind),
+      );
+    } else {
+      return FloatingActionButton(
+        heroTag: "Create bot",
+        onPressed: null,
+        backgroundColor: Colors.grey,
+        child: Icon(Icons.assignment_ind),
+      );
     }
   }
 }
