@@ -10,6 +10,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'dart:async';
+
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 const APP_OPEN_STATE = 0;
 const FILE_UPLOADED_STATE = 1;
@@ -37,9 +40,26 @@ class _UploadChatState extends State<UploadChatPage> {
   File? uploadedFile;
 
   int _currentState = APP_OPEN_STATE;
+  StreamSubscription? _intentDataStreamSubscription;
+  List<SharedMediaFile>? _sharedFiles;
+  String? _sharedText;
 
   _UploadChatState() {
+    print("opening file");
     lookForOldChats();
+  }
+
+  void checkReceivedFiles() {
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
+          setState(() {
+            print("Shared:" + (_sharedFiles?.map((f)=> f.path).join(",") ?? ""));
+            _sharedFiles = value;
+            _fileName = value.toString();
+          });
+        }, onError: (err) {
+          print("getIntentDataStream error: $err");
+        });
   }
 
   void lookForOldChats() async {
@@ -72,6 +92,26 @@ class _UploadChatState extends State<UploadChatPage> {
             builder: (context) => ViewChatStatsPage(title: widget.title)),
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getTextStream().listen((String value) {
+          setState(() {
+            _fileName = value;
+          });
+        }, onError: (err) {
+          print("getLinkStream error: $err");
+        });
+  }
+
+  @override
+  void dispose() {
+    _intentDataStreamSubscription?.cancel();
+    super.dispose();
   }
 
   void _reset() {

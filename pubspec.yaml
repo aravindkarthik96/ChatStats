@@ -36,6 +36,12 @@ dependencies:
   fl_chart: ^0.40.2
   receive_sharing_intent: ^1.4.5
 
+dependency_overrides:
+  charts_flutter:
+    git:
+      url: https://github.com/google/charts
+      path: charts_flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
