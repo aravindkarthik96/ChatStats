@@ -36,6 +36,17 @@ Future<List<String>> getParticipants(db) async {
   return participantsList;
 }
 
+String getParticipantsDisplayNames(List<String> participants) {
+  print(participants.length);
+  print(participants.toString());
+
+  if(participants.length < 3) {
+    return participants.first + " and " + participants.last;
+  } else {
+    return participants.first;
+  }
+}
+
 String getParticipantsNames(List<String> participants) {
   return (participants.toString().replaceAll("[", "")).replaceAll("]", "");
 }

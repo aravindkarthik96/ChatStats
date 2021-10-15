@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: UploadChatPage(title: 'ChatStat 💬'),
+      home: UploadChatPage(title: 'ChatStats 💬'),
     );
   }
 }

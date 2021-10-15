@@ -28,7 +28,7 @@ class UploadChatPage extends StatefulWidget {
 
 class _UploadChatState extends State<UploadChatPage> {
   String _fileUploadStatus = "Upload your chat file";
-  String? _fileName = "";
+  String? _fileName;
   List<PlatformFile>? _paths;
   Color _fileUploadIndicatorColor = Colors.grey;
   Color _fabColor = Colors.blue;
@@ -55,7 +55,7 @@ class _UploadChatState extends State<UploadChatPage> {
     AppDatabase db = await databaseFuture;
     var participants = await getParticipants(db);
     setState(() {
-      _fileName = "Chat of ${getParticipantsNames(participants)}";
+      _fileName = "Chat of ${getParticipantsDisplayNames(participants)}";
     });
   }
 

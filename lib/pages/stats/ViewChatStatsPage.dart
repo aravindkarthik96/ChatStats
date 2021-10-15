@@ -40,7 +40,7 @@ class _ViewChatStatsPage extends State<ViewChatStatsPage> {
     var db = await databaseFuture;
     _totalMessagesExchanged = await getTotalMessagesExchanged(db);
     var participants = await getParticipants(db);
-    _chatParticipants = getParticipantsNames(participants);
+    _chatParticipants = getParticipantsDisplayNames(participants);
     _participantStats = "";
     participants.forEach((participant) async {
       var messageCountForParticipant =
