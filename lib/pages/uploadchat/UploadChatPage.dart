@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:chat_stats/database/AppDatabase.dart';
 import 'package:chat_stats/pages/chatbot/ChatBotPage.dart';
-import 'package:chat_stats/pages/chatbot/SmartRepliesTester.dart';
 import 'package:chat_stats/pages/instructions/InstructionsPage.dart';
 import 'package:chat_stats/pages/privacy/PrivacyPolicyPage.dart';
 import 'package:chat_stats/pages/stats/ViewChatStatsPage.dart';
@@ -100,7 +99,7 @@ class _UploadChatState extends State<UploadChatPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => SmartRepliesTester()),
+          builder: (context) => ChatBotPage()),
     );
   }
 

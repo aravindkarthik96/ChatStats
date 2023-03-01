@@ -12,7 +12,6 @@ final RegExp emojiRegEx = RegExp(
 List<Message> messageList = [];
 List<MessageEmojis> messageEmojiList = [];
 
-
 List<Message> loopMessages(List<String> rawList) {
   int index = 0;
 

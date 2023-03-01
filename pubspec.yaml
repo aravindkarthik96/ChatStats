@@ -25,17 +25,16 @@ dependencies:
     sdk: flutter
   file_picker:
     git:
-      url: git://github.com/miguelpruivo/flutter_file_picker.git
+      url: https://github.com/miguelpruivo/flutter_file_picker
   cupertino_icons: ^1.0.2
   floor: ^1.1.0
   hive_flutter: ^1.0.0
   hive: ^2.0.4
   intl: ^0.17.0
-  jiffy: ^4.1.0
+  jiffy: ^5.0.0
   charts_flutter: ^0.11.0
-  fl_chart: ^0.40.2
+  fl_chart: ^0.61.0
   receive_sharing_intent: ^1.4.5
-  flutter_smart_reply: ^0.0.2
 
 dependency_overrides:
   charts_flutter:
@@ -47,7 +46,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   floor_generator: ^1.1.0
-  hive_generator: ^1.1.0
+  hive_generator: ^2.0.0
   build_runner: ^2.0.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

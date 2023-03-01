@@ -1,13 +1,10 @@
-import 'package:chat_stats/database/messages/Message.dart';
 import 'package:chat_stats/processor/MessageProcessor.dart';
-import 'package:chat_stats/processor/MessageStatsExtractor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_smart_reply/flutter_smart_reply.dart';
 
 class ChatBotPage extends StatefulWidget {
-  final String title;
-  ChatBotPage({Key? key, required this.title}) : super(key: key);
+  ChatBotPage({Key? key}) : super(key: key);
 
   @override
   _ChatBotPage createState() {
@@ -15,12 +12,23 @@ class ChatBotPage extends StatefulWidget {
   }
 }
 
+class ChatBotMessage {
+  String messageTime;
+  bool isSender;
+  String messageText;
+  ChatBotMessage(this.messageTime,this.isSender,this.messageText);
+}
+
 class _ChatBotPage extends State<ChatBotPage>{
-  List<TextMessage> _textMessages = [];
+   final _textBoxController = TextEditingController();
+   final _chatFocusNode = FocusNode()..addListener(() {
+   });
+   final _scrollController = ScrollController();
+  List<ChatBotMessage> _textMessages = [];
+
   _ChatBotPage() {
-    // FlutterSmartReply.getSmartReplies();
+    loadData();
   }
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,22 +43,22 @@ class _ChatBotPage extends State<ChatBotPage>{
       body: Stack(
         children: <Widget>[
           ListView.builder(
-            itemCount: 20,
+            itemCount: _textMessages.length,
             // shrinkWrap: true,
+            controller: _scrollController,
             padding: EdgeInsets.only(top: 10,bottom: 60),
-            physics: RangeMaintainingScrollPhysics(),
             itemBuilder: (context, index){
               return Container(
                 padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
                 child: Align(
-                  alignment: (index % 2 == 0?Alignment.topLeft:Alignment.topRight),
+                  alignment: (_textMessages[index].isSender ?Alignment.topRight:Alignment.topLeft),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: (index % 2 == 0?Colors.grey.shade200:Colors.blue[200]),
+                      color: (_textMessages[index].isSender?Colors.lightBlueAccent:Colors.grey.shade200),
                     ),
                     padding: EdgeInsets.all(16),
-                    child: Text("Dummy text", style: TextStyle(fontSize: 15),),
+                    child: Text(_textMessages[index].messageText, style: TextStyle(fontSize: 15),),
                   ),
                 ),
               );
@@ -71,6 +79,8 @@ class _ChatBotPage extends State<ChatBotPage>{
                       SizedBox(width: 24,),
                       Expanded(
                         child: TextField(
+                          controller: _textBoxController,
+                          focusNode: _chatFocusNode,
                           decoration: InputDecoration(
                               hintText: "Write message...",
                               hintStyle: TextStyle(color: Colors.black54),
@@ -80,10 +90,10 @@ class _ChatBotPage extends State<ChatBotPage>{
                       ),
                       SizedBox(width: 15,),
                       FloatingActionButton(
-                        onPressed: (){},
+                        onPressed: _sendMessage,
                         child: Icon(Icons.send,color: Colors.white,size: 18,),
                         backgroundColor: Colors.blue,
-                        elevation: 0,
+                        elevation: 20,
                       ),
                     ],
 
@@ -95,5 +105,25 @@ class _ChatBotPage extends State<ChatBotPage>{
         ],
       ),
     );
+  }
+
+  void loadData() {
+    var db =  databaseFuture;
+
+  }
+
+  void _sendMessage() {
+    if(_textBoxController.text.isNotEmpty) {
+      print("message sent");
+      setState(() {
+        _textMessages.add(ChatBotMessage(DateTime.now().toString(), true, _textBoxController.text));
+        _textBoxController.text = "";
+        _scrollToBottom();
+      });
+    }
+  }
+
+  void _scrollToBottom() {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent + 10);
   }
 }
